@@ -1,18 +1,15 @@
 
+varying vec3 vNormal;
 varying vec2 vUv;
-uniform float iGlobalTime;
-//chunk(fog_pars_vertex);
+//(fog_pars_vertex);
 
+void main(void) {
 
-void main() {
-  vUv = uv;
   //chunk(begin_vertex);
-	//chunk(project_vertex);
-	//chunk(worldpos_vertex);
-
-  //chunk(fog_vertex);
-
-
-
-
+  //chunk(project_vertex);
+  //chunk(worldpos_vertex);
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+  vNormal = normalize( normalMatrix * normal );
+  //(fog_vertex);
 }

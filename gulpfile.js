@@ -10,7 +10,6 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
-    stylus = require('gulp-stylus'),
     uglify = require('gulp-uglify'),
     webpack = require('webpack'),
     webpackConfig = require('./webpack.config.js'),
@@ -20,8 +19,8 @@ var gulp = require('gulp'),
 /* Directories */
 var dirs = {
     src: './assets',
-    dest: './dist'
-};
+    dest: './dist',
+  };
 
 /**
  * Error reporting helper function.
@@ -29,15 +28,15 @@ var dirs = {
  *
  * @param err
  */
-var errorReport = function(err)
+var errorReport = function (err)
 {
     var lineNumber = (err.lineNumber) ? 'LINE ' + err.lineNumber + ' -- ' : '';
 
     notify({
         title: 'Task failed [' + err.plugin + ']',
         message: lineNumber + 'See console.',
-        sound: 'Basso'
-    }).write(err);
+        sound: 'Basso',
+      }).write(err);
 
     gutil.beep();
 
@@ -48,70 +47,18 @@ var errorReport = function(err)
     report += chalk('TASK:') + ' [' + err.plugin + ']\n';
     report += chalk('ISSUE:') + ' ' + err.message + '\n';
     if (err.lineNumber) { report += chalk('LINE:') + ' ' + err.lineNumber + '\n'; }
+
     if (err.fileName)   { report += chalk('FILE:') + ' ' + err.fileName + '\n'; }
+
     console.log(report);
 
     // Prevent the 'watch' task from stopping
     this.emit('end');
-};
+  };
 
 /*-------*/
 /* Tasks */
 /*-------*/
-// Stylus
-gulp.task('stylus:dev', function()
-{
-    return gulp.src(dirs.src + '/stylus/*.styl')
-        .pipe(plumber({
-            errorHandler: errorReport
-        }))
-        .pipe(sourcemaps.init())
-        .pipe(stylus())
-        .pipe(postcss([autoprefixer({
-            browsers: [
-                "Android 2.3",
-                "Android >= 4",
-                "Chrome >= 20",
-                "Firefox >= 24",
-                "Explorer >= 8",
-                "iOS >= 6",
-                "Opera >= 12",
-                "Safari >= 6"
-            ]
-        }), flexibility()]))
-        .pipe(cleancss())
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(sourcemaps.write('./maps'))
-        .pipe(gulp.dest(dirs.dest + '/css'))
-        .pipe(bs.stream());
-});
-
-gulp.task('stylus', function()
-{
-    return gulp.src(dirs.src + '/stylus/*.styl')
-        .pipe(stylus({
-            compress: true
-        }))
-        .pipe(postcss([autoprefixer({
-            browsers: [
-                "Android 2.3",
-                "Android >= 4",
-                "Chrome >= 20",
-                "Firefox >= 24",
-                "Explorer >= 8",
-                "iOS >= 6",
-                "Opera >= 12",
-                "Safari >= 6"
-            ]
-        }), flexibility()]))
-        .pipe(cleancss())
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(gulp.dest(dirs.dest + '/css'));
-});
 
 // Sass
 // Compatibility with Bootstrap 3.3.7 Sass
@@ -119,54 +66,37 @@ gulp.task('sass:dev', function () {
     return gulp.src(dirs.src + '/sass/*.scss')
         .pipe(sourcemaps.init())
         .pipe(sass({
-            outputStyle: 'compressed',
-            precision: 10
-        }).on('error', sass.logError))
+            outputStyle: 'expanded',
+            precision: 10,
+            includePaths: ['./node_modules'],
+          }).on('error', sass.logError))
         .pipe(postcss([autoprefixer({
-            browsers: [
-                "Android 2.3",
-                "Android >= 4",
-                "Chrome >= 20",
-                "Firefox >= 24",
-                "Explorer >= 8",
-                "iOS >= 6",
-                "Opera >= 12",
-                "Safari >= 6"
-            ]
-        })]))
-        .pipe(cleancss())
+            browsers: ['defaults'],
+          }), ]))
         .pipe(rename({
-            suffix: '.min'
-        }))
+            suffix: '.min',
+          }))
         .pipe(sourcemaps.write('./maps'))
         .pipe(gulp.dest(dirs.dest + '/css'))
         .pipe(bs.stream());
-});
+  });
 
 gulp.task('sass', function () {
     return gulp.src(dirs.src + '/sass/*.scss')
         .pipe(sass({
             outputStyle: 'compressed',
-            precision: 10
-        }).on('error', sass.logError))
+            precision: 10,
+            includePaths: ['./node_modules'],
+          }).on('error', sass.logError))
         .pipe(postcss([autoprefixer({
-            browsers: [
-                "Android 2.3",
-                "Android >= 4",
-                "Chrome >= 20",
-                "Firefox >= 24",
-                "Explorer >= 8",
-                "iOS >= 6",
-                "Opera >= 12",
-                "Safari >= 6"
-            ]
-        })]))
+            browsers: ['defaults'],
+          }),]))
         .pipe(cleancss())
         .pipe(rename({
-            suffix: '.min'
-        }))
+            suffix: '.min',
+          }))
         .pipe(gulp.dest(dirs.dest + '/css'));
-});
+  });
 
 
 /**
@@ -181,7 +111,6 @@ gulp.task('sass', function () {
 var config = Object.create(webpackConfig);
 
 config.devtool = 'sourcemap';
-config.debug = true;
 
 var compiler = webpack(config);
 
@@ -191,14 +120,15 @@ var compiler = webpack(config);
 gulp.task('webpack:dev', function (callback) {
     compiler.run(function (err, stats) {
         if (err) {
-            throw new gutil.PluginError('webpack:dev', err);
+          throw new gutil.PluginError('webpack:dev', err);
         }
+
         gutil.log('[webpack:dev]', stats.toString({
-            colors: true
-        }));
+            colors: true,
+          }));
         callback();
-    });
-});
+      });
+  });
 
 /**
  * JS files for production - Build
@@ -211,28 +141,31 @@ gulp.task('webpack', function (callback) {
     config.plugins = config.plugins.concat(
         new webpack.DefinePlugin({
             'process.env': {
-                'NODE_ENV': JSON.stringify('production')
-            }
-        }),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin()
+                NODE_ENV: JSON.stringify('production'),
+              },
+          }),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.UglifyJsPlugin({
+          sourcemaps: true,
+        })
     );
 
     webpack(config, function (err, stats) {
         if (err) {
-            throw new gutil.PluginError('webpack', err);
+          throw new gutil.PluginError('webpack', err);
         }
+
         gutil.log('[webpack]', stats.toString({
-            colors: true
-        }));
+            colors: true,
+          }));
         callback();
-    });
-});
+      });
+  });
 
 /*------------*/
 /* Watch Task */
 /*------------*/
-gulp.task('watch', function()
+gulp.task('watch', function ()
 {
     bs.init({
         server: {
@@ -240,10 +173,9 @@ gulp.task('watch', function()
         }
     });
 
-    gulp.watch(dirs.src + '/stylus/**/*.styl', gulp.series('stylus:dev'));
     gulp.watch(dirs.src + '/sass/**/*.scss', gulp.series('sass:dev'));
     gulp.watch(dirs.src + '/js/**/*.js', gulp.series('webpack:dev')).on('change', bs.reload);
-});
+  });
 
 /*------------*/
 /* Build task */

@@ -8,7 +8,7 @@ uniform float iGlobalTime;
 //chunk(common);
 //chunk(packing);
 //chunk(bsdfs);
-//chunk(fog_pars_fragment);
+//(fog_pars_fragment);
 
 
 //==========================================================//
@@ -64,5 +64,5 @@ void main(void) {
 
   // output color fragment
   gl_FragColor = vec4(matColor, 0.5);
-  //chunk(fog_fragment);
+  //(fog_fragment);
 }

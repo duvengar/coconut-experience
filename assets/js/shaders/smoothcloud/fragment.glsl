@@ -1,21 +1,26 @@
 
 uniform float opacity;
+uniform float ratio;
 uniform float iGlobalTime;
 uniform vec3 diffuse;
+uniform vec3 emissive;
+uniform vec3 lightColor;
+uniform vec3 lightPos;
 varying vec2 vUv;
 //chunk(common);
-//chunk(fog_pars_fragment);
+//(fog_pars_fragment);
 
 // Tiling 2D noise by Dave Hoskin https://www.shadertoy.com/view/4dlGW2
-//----------------------------------------------------------------------------------------
+//---------------------------------------------------------------------
 float Hash(in vec2 p, in float scale)
 {
 	// This is tiling part, adjusts with the scale...
 	p = mod(p, scale);
+
 	return fract(sin(dot(p, vec2(27.16898, 38.90563))) * 5151.5473453);
 }
 
-//----------------------------------------------------------------------------------------
+// Noise & fbm function taken from iq // https://www.shadertoy.com/view/lsfGRr
 float Noise(in vec2 p, in float scale )
 {
 	vec2 f;
@@ -35,20 +40,19 @@ float Noise(in vec2 p, in float scale )
     return res;
 }
 
-//----------------------------------------------------------------------------------------
 float fBm(in vec2 p)
 {
   //  p += vec2(iGlobalTime * 0.1, iGlobalTime * 0.01) * vec2(0.01)  ;
 	float f = 0.0;
 	// Change starting scale to any integer value...
 	float scale = 10.;
-    p = mod(p, scale);
+  p = mod(p, scale);
 	float amp   = 0.6;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		f += Noise(p, scale) * amp;
-		amp *= 0.5;
+		amp *= 0.35;
 		// Scale must be multiplied by an integer value...
 		scale *= 2.0;
 	}
@@ -58,14 +62,13 @@ float fBm(in vec2 p)
 
 void main(void) {
 
-  float alpha = fBm(vec2(vUv  ) - vec2(iGlobalTime * 0.005, 0.0));
-  alpha = clamp(pow(alpha, 3.0), 0.0, 1.0) - 0.15;
-  vec3 color = vec3(fBm(vec2(vUv  ) - vec2(iGlobalTime * 0.005, 0.0)));
-  color = vec3(smoothstep(0.5, 1.0, color));
-  color = mix(color * 3.5, diffuse, 0.15);
-  vec4 col = vec4(color, alpha);
+	vec2 uv = - 1.0 + 2.0 * vUv;
+  uv.x += iGlobalTime * .02;
+  float noise = fBm(uv);
+  noise = smoothstep(.2, 1., noise);
+  noise = pow(noise, 3.);
 
-  gl_FragColor = col;
-  // ADD FOG
-  //chunk(fog_fragment);
+  gl_FragColor = vec4(vec3(1.) , noise);
+
+
 }

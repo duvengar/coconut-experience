@@ -11,7 +11,9 @@ let Material = function (scene) {
   let uniforms = THREE.UniformsUtils.merge([{
       opacity: { type: 'f', value: 0.75 },
       diffuse: { type: 'c', value: new THREE.Color(scene.options.colors.darkpurple) },
-      diffshadow: { type: 'c', value: new THREE.Color(scene.options.colors.blue) },
+      lightColor: { type: 'c', value: new THREE.Color(scene.options.colors.cyan) },
+      emissive: { type: 'c', value: new THREE.Color(scene.options.colors.background) },
+      lightPos: { type: 'v3', value: new THREE.Vector3(-5.0, 0.0, 20.0) },
       iGlobalTime: { type: 'f', value: 0.0 },
     },
         THREE.UniformsLib.fog,
@@ -22,8 +24,8 @@ let Material = function (scene) {
     uniforms: uniforms,
     vertexShader: VERTEX,
     fragmentShader: FRAGMENT,
-  //fog: true,
-  //  lights: true,
+    fog: false,
+    lights: true,
     transparent: false,
 
   });

@@ -80,7 +80,6 @@ class Crown {
     c.merge(p, mtx5);
     c.merge(p, mtx6);
 
-    //this.options.crownGeometry = new THREE.BufferGeometry();
     this.options.crownGeometry.fromGeometry(c);
     let material = MaterialManager.get('basic_shadows');
 
@@ -100,12 +99,6 @@ class Crown {
     mesh.name = this.options.name;
     mesh.receiveShadow = this.options.receiveShadow;
     mesh.castShadow = this.options.castShadow;
-
-    // this.options.physics.size = [
-    //   this.options.scale.radius * 1,
-    //   this.options.scale.height * 1,
-    //   this.options.scale.radius * 1,
-    // ];
 
     return scene.add(mesh, this.options.physics);
   }

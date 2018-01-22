@@ -1,0 +1,82 @@
+@function get-color($name) {
+  @return get-map($colors, $name);
+}
+
+@function get-bp($name) {
+  @return get-map($breakpoints, $name);
+}
+
+@function get-bp-px($name) {
+  @return get-map($breakpoints, $name) * 1px;
+}
+
+@function get-path($name) {
+  @return get-map($paths, $name);
+}
+
+@function get-transition($name) {
+  @return get-map($transitions, $name);
+}
+
+@function get-easing($name) {
+  $easing: get-map($easings, $name);
+
+  @return unquote($easing);
+}
+
+@function get-font($name, $attribute: -1) {
+  @if $attribute == -1 {
+    @return get-map($fonts, $name);
+  }
+
+  $value: get-map(get-map($fonts, $name), $attribute);
+
+  @if type-of($value) == 'string' {
+    @return unquote($value);
+  }
+
+  @return $value;
+}
+
+@function get-letter-spacing($name) {
+  @return get-map($letter-spacing, $name);
+}
+
+@function get-layout($name) {
+  @return get-map($layout, $name);
+}
+
+@function get-map($map, $name) {
+  @if map-has-key($map, $name) {
+    @return map-get($map, $name);
+  }
+
+  @else {
+    @warn '#{$name} not found in map.';
+    @return '';
+  }
+}
+
+@function pow($base, $exponents) {
+  $raised: 1;
+
+  @for $i from 1 through $exponents {
+    $raised: $raised * $base;
+  }
+
+  @return $raised;
+}
+
+@function get-modular-value($position) {
+  $key: nth(map-keys($rootsizes), 1);
+
+  @if ($position == 0) {
+    @return get-map($rootsizes, $key);
+  }
+
+  @if ($position < 0) {
+    @return get-map($rootsizes, $key) / pow(get-map($ratios, $key), $position * -1);
+  }
+
+  @return get-map($rootsizes, $key) * pow(get-map($ratios, $key), $position);
+}

@@ -48,8 +48,6 @@ class TrunkSegment {
 
       let UVx = Uv.getX(i);
       let UVy = Uv.getY(i);
-      //let UVw = Uv.getW(i);
-      //console.log('x ', UVx, 'y ', UVy, 'w ', UVw);
 
       if (UVy !== 0) {
         cylinder.attributes.uv.setX(i, 0.5);

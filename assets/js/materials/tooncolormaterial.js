@@ -44,6 +44,7 @@ let Material = function (scene, color, name) {
     lights: true,
     transparent: false,
   });
+  material.name = 'toon_' + name;
   MaterialManager.set('toon_' + name, material);
   return material;
 };

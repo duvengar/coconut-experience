@@ -81,8 +81,9 @@ class Floor {
               z: this.options.scale.z * 0.999,
             },
             name: this.options.name + this.options.index + '_Tile_' + tIndex,
+            index: tIndex,
           });
-
+          scene.notes.push(tile);
           tIndex++;
 
           let box = new Box();
@@ -102,6 +103,7 @@ class Floor {
           mesh.name = this.options.name + this.options.index + '_Base_' + tIndex,
           mesh.receiveShadow = false;
           mesh.castShadow = false;
+
           scene.add(mesh, this.options.physics);
         }
       }

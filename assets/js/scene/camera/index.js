@@ -9,19 +9,11 @@ class Camera {
       options.camera.far
     );
 
-    // this.camera.position.set(
-    //   2 * options.camera.distance * options.camera.position.x,
-    //   2 * options.camera.distance * options.camera.position.y,
-    //   2 * options.camera.distance * options.camera.position.z
-    // );
-
     this.camera.position.set(
       options.camera.position.x,
       options.camera.position.y,
       options.camera.position.z
     );
-
-
 
     this.camera.lookAt(new THREE.Vector3(
       options.camera.lookAt.x,

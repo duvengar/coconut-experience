@@ -5,7 +5,7 @@ import shaderParse from '../../shaders/shaderparse.js';
 import {
   MaterialManager
 } from '../../materials/manager';
-const VOLUMETRIC_FRAG = shaderParse(require('../../shaders/volumetriclight/fragmentcopy.glsl'));
+const VOLUMETRIC_FRAG = shaderParse(require('../../shaders/volumetriclight/fragment.glsl'));
 const VOLUMETRIC_VERT = shaderParse(require('../../shaders/volumetriclight/vertex.glsl'));
 
 const BLEND_FRAG = shaderParse(require('../../shaders/additiveblending/fragment.glsl'));
@@ -94,9 +94,10 @@ class Composer {
     pass.renderToScreen = true;
     pass.name = 'Additive_Blending';
     this.blendingComposer.addPass(pass);
-    console.log('tAdd');
-    console.log(pass.uniforms.tAdd.value);
-    console.log(this.occlusionTarget.texture);
+
+    // console.log('tAdd');
+    // console.log(pass.uniforms.tAdd.value);
+    // console.log(this.occlusionTarget.texture);
 
     return this;
 

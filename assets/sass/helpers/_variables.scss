@@ -1,0 +1,77 @@
+// Typography
+
+$breakpoints: (
+  'small'                  : 0,    // ~ Mobile first
+  'medium'                 : 1024, // ~ Large tablet up up
+  'large'                  : 1366, // ~ Desktop up
+  'huge'                   : 1440,  // ~ Large desktop up
+);
+
+$rootsizes: (
+  'small'                  : 10,
+  'medium'                 : 14,
+  'large'                  : 16,
+  'huge'                   : 18,
+);
+
+$ratios: (
+  'small'                  : 1.4,
+  'medium'                 : 1.4,
+  'large'                  : 1.4,
+  'huge'                   : 1.4,
+);
+
+$modular-scale: (
+  'scale-0': (
+    '-1': get-modular-value(-1),
+    '0': get-modular-value(0),
+    '1': get-modular-value(1),
+    '2': get-modular-value(2),
+    '3': get-modular-value(3),
+    '4': get-modular-value(4),
+    '5': get-modular-value(5),
+  ),
+);
+
+// Layout
+$layout: (
+  // Boxes
+  'box-bp-2': 640px,
+  'box-bp-3': 1656px,
+
+  // Container
+  'cnt-narrow-bp': 1656px,
+  'cnt-narrow-mw': (2/3),
+
+  // Paddings
+  'pad-left': 4rem,
+  'pad-right': 4rem,
+
+  // Columns
+  'col-width': 24rem,
+);
+
+// Colors
+$black: #000;
+$white: #fff;
+$teal: #26D7B9;
+//  Paths
+$paths: ();
+
+// Transitions
+$transitions: (
+  'xlong'                : 0.7s,
+  'long'                 : 0.6s,
+  'xslow'                : 0.5s,
+  'slow'                 : 0.4s,
+  'normal'               : 0.3s,
+  'fast'                 : 0.2s,
+  'xfast'                : 0.1s
+);
+
+// Easings
+$easings: (
+  'natural'              : ease-in-out,
+  'swiftly'              : 'cubic-bezier(0.6, 0, 0.4, 1.0)',
+  'trendy'               : 'cubic-bezier(0.75, 0, 0.200, 1)'
+);

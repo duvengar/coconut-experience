@@ -18,13 +18,14 @@ class Tile {
         z: 0,
       },
       name: 'Tile_',
+      index: 0,
       castShadow: true,
       receiveShadow: true,
       physics: {
         type: 'box',
         move: true,
-        density: 1000,
-        friction: 0.0,
+        density: 100,
+        friction: 0.01,
         restitution: 0.0,
         belongsTo: 2,
         collidesWith: 0xffffffff,
@@ -49,9 +50,6 @@ class Tile {
       this.options.position.y,
       this.options.position.z
     );
-
-
-
     return scene.add(mesh, this.options.physics);
   }
 }

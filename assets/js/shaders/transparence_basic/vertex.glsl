@@ -1,6 +1,6 @@
 
 varying vec3 vNormal;
-//chunk(fog_pars_vertex);
+//(fog_pars_vertex);
 
 void main(void) {
   //chunk(begin_vertex);
@@ -8,5 +8,5 @@ void main(void) {
   //chunk(worldpos_vertex);
   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
   vNormal = normalize( normalMatrix * normal );
-  //chunk(fog_vertex);
+  //(fog_vertex);
 }

@@ -3,6 +3,7 @@ import {
 } from '../../materials/manager';
 import * as THREE from 'three';
 const OIMO = require('oimo');
+import { SoundManager } from '../../sound/manager';
 
 const DRAG_STATUS_NONE = 'DRAG_STATUS_NONE';
 const DRAG_STATUS_START = 'DRAG_STATUS_START';
@@ -11,9 +12,9 @@ const DRAG_STATUS_DRAGGING = 'DRAG_STATUS_DRAGGING';
 class Gestures {
   constructor(scene, options = {}) {
     this.dragStatus = DRAG_STATUS_NONE;
+    this.objectDragged = 0;
     this.ray = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
-
     this.scene = scene;
     this.meshes = [];
 
@@ -67,23 +68,25 @@ class Gestures {
       noSleep: true,
       collision: false,
       name: 'dragPointBody',
-      config: [0.02, 0.0, 0.0, 1 << 2, 1 << 2],
+      config: [0.01, 0.0, 0.0, 1 << 2, 1 << 2],
     });
 
-
-    let mouseMove = function(e) {
+    let mouseMove = function (e) {
       this.mouseMove(e);
     }.bind(this);
-    let mouseUp = function(e) {
+    let mouseUp = function (e) {
       this.mouseUp(e);
     }.bind(this);
-    let mouseDown = function(e) {
+    let mouseDown = function (e) {
       this.mouseDown(e);
     }.bind(this);
 
     window.addEventListener('mousemove', mouseMove, true);
     window.addEventListener('mouseup', mouseUp, true);
     window.addEventListener('mousedown', mouseDown, true);
+    window.addEventListener('touchmove', mouseMove, true);
+    window.addEventListener('touchend', mouseUp, true);
+    window.addEventListener('touchstart', mouseDown, true);
 
     return this.gestures;
   }
@@ -104,16 +107,15 @@ class Gestures {
     }
   }
 
-
-
   mouseUp(e) {
 
     if (this.dragStatus !== DRAG_STATUS_NONE) {
 
       if (this.dragLineModel != null) {
         this.dragLineModel.remove();
+        this.dragLineModel = null;
       }
-      this.scene.controls.enabled = true;
+
       this.dragStatus = DRAG_STATUS_NONE;
       this.dragPointView.visible = false;
       this.dragPlaneView.visible = false;
@@ -123,10 +125,6 @@ class Gestures {
 
   mouseDown(e) {
     let intersects;
-    //this.updateMouse(e);
-    if (e.button !== 0) {
-      return;
-    }
 
     if (this.dragStatus !== DRAG_STATUS_NONE) {
       return;
@@ -137,42 +135,46 @@ class Gestures {
     intersects = this.ray.intersectObjects(this.meshes, true);
 
     const excluded = ['Ground', 'Sky', 'Eye', 'Hole', 'Tile', 'Coco', 'Crown',
-      'Floor', 'Land', 'Montain', 'Wolf', 'Moon',
+      'Floor', 'Land', 'Montain', 'Wolf', 'Moon', 'Starfield',
     ];
-
-    //let draggable = intersects.length > 0 && excluded.indexOf(intersects[0].object.name) === -1;
 
     let draggable = true;
     if (intersects.length > 0) {
       draggable = true;
       let name = intersects[0].object.name;
       name = intersects[0].object.name;
-      console.log(name + ' ' + name.includes('_'));
       if (name.includes('_')) {
         name = name.split('_');
+        this.objectDragged = name[1];
         for (let i = 0; i < name.length; i++) {
           for (let j = 0; j < excluded.length; j++) {
             if (name[i] == excluded[j]) {
               draggable = false;
+
               this.dragStatus = DRAG_STATUS_NONE;
+              console.log(name[i]);
+
+              if (name[i] == 'Wolf') {
+                SoundManager.play('wolf');
+              }
+
+              break;
             }
           }
         }
       } else {
-        console.log('hello');
         for (let i = 0; i < excluded.length; i++) {
           if (name == excluded[i]) {
             draggable = false;
             this.dragStatus = DRAG_STATUS_NONE;
-            console.log('chao');
+            if (name == 'Wolf') {
+              SoundManager.play('wolf');
+            }
           }
         }
       }
-
-      //console.log(name + ' ' + draggable);
     } else {
       draggable = false;
-      //console.log('noCastedObject' + ' ' + draggable);
     }
 
     if (draggable) {
@@ -188,8 +190,19 @@ class Gestures {
   }
 
   updateMouse(e) {
-    this.mouse.x = (e.layerX / this.scene.options.dimensions.width) * 2 - 1;
-    this.mouse.y = -(e.layerY / this.scene.options.dimensions.height) * 2 + 1;
+    let x = 0;
+    let y = 0;
+
+    if (e.layerX && e.layerY) {
+      x = e.layerX;
+      y = e.layerY;
+    } else if (e.targetTouches && e.targetTouches.length > 0) {
+      x = e.targetTouches[0].clientX;
+      y = e.targetTouches[0].clientY;
+    }
+
+    this.mouse.x = (x / this.scene.options.dimensions.width) * 2 - 1;
+    this.mouse.y = -(y / this.scene.options.dimensions.height) * 2 + 1;
   }
 
   localAnchorPoint(blockName, anchorPointInThree) {
@@ -206,22 +219,23 @@ class Gestures {
       name: 'dragJoint',
       body2: this.dragBlockName,
       collision: false,
-      pos1: [0, 0, 0],
-      pos2: [
+
+      pos1: [
         this.dragBlockLocalAnchorPoint.x,
         this.dragBlockLocalAnchorPoint.y,
         this.dragBlockLocalAnchorPoint.z,
       ],
-      min: -1,
-      max: 1,
-      spring: [3, 0.0005],
+      pos2: [0, 0, 0],
+      min: 0,
+      max: 0.1,
+      spring: [0.1, 0.0005],
     });
   }
 
   updateMeshes(objects) {
     let meshes = [];
 
-    objects.map(function(object) {
+    objects.map(function (object) {
       meshes.push(object.mesh);
     });
 
@@ -235,7 +249,7 @@ class Gestures {
       this.dragStatus = DRAG_STATUS_DRAGGING;
       this.dragPointView.visible = false;
       this.dragPlaneView.visible = true;
-      this.dragLineView.visible = true;
+      this.dragLineView.visible = false;
     }
 
     if (this.dragStatus == DRAG_STATUS_DRAGGING) {

@@ -1,0 +1,105 @@
+// Definitions
+$fonts: (
+  'primary': (
+    'font-family': 'Cousine, Helvetica, Arial, sans-serif',
+    'font-style' : 'normal',
+    'style'      : 'normal',
+    'bold'       : 'bold',
+    'cap-height' : 0.67,
+  ),
+  'secondary': (
+    'font-family': 'bookmania, Georgia, serif',
+    'font-style' : 'normal',
+    'style'      : 'normal',
+    'bold'       : 'bold',
+    'cap-height' : 0.725,
+  ),
+);
+
+$letter-spacing: (
+  'small' : 0.05em,
+  'medium': 0.1em,
+  'large' : 0.2em,
+);
+
+// Loaded fonts (Primary)
+.wf-cousine-n4-active %font-primary {
+  font-style: get-font(primary, font-style);
+  font-family: get-font(primary, font-family);
+  font-feature-settings: 'lnum';
+  hyphens: manual;
+  overflow-wrap: break-word;
+}
+
+// Loaded fonts (Secondary)
+.wf-bookmania-n7-active %font-secondary {
+  font-style: get-font(secondary, font-style);
+  font-family: get-font(secondary, font-family);
+  font-feature-settings: 'lnum';
+  hyphens: manual;
+  overflow-wrap: break-word;
+  font-weight: get-font(secondary, bold);
+}
+
+// General text styles
+.text {
+  &--center {
+    text-align: center;
+  }
+
+  &--left {
+    text-align: left;
+  }
+
+  &--right {
+    text-align: right;
+  }
+
+  &--uppercase {
+    text-transform: uppercase;
+  }
+
+  &--lowercase {
+    text-transform: lowercase;
+  }
+}
+
+.color {
+    &--teal {
+        color: $teal;
+    }
+}
+
+.paragraph {
+    @extend %font-primary;
+    user-select: none;
+
+    &--m0 {
+        @include sassline('0', get-font('primary'), 2);
+    }
+
+    &--m1 {
+        @include sassline('1', get-font('primary'), 2);
+    }
+
+    &--m5 {
+        @include sassline('5', get-font('primary'), 6);
+    }
+}
+
+.highlight {
+    @extend %font-secondary;
+    user-select: none;
+
+    &--m1 {
+        @include sassline('1', get-font('primary'), 2);
+    }
+
+    &--m2 {
+        @include sassline('2', get-font('primary'), 2.5);
+    }
+
+    &--m3 {
+        @include sassline('3', get-font('primary'), 3);
+    }
+}

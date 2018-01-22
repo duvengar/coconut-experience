@@ -3,7 +3,6 @@ import {
   MaterialManager
 } from '../../materials/manager';
 const defaultsDeep = require('lodash.defaultsdeep');
-const $ = require('jquery');
 
 class Loader {
   constructor(scene, options = {}) {
@@ -68,8 +67,6 @@ class Loader {
           node.receiveShadow = false;
         }
       });
-
-      scene.Mirrors.push(model);
 
       scene.add(model, params);
 

@@ -53,8 +53,6 @@ class Coco {
     mesh.receiveShadow = this.options.receiveShadow;
     mesh.castShadow = this.options.castShadow;
 
-    //scene.add(mesh, this.options.physics);
-
     return scene.add(mesh, this.options.physics);
   }
 }

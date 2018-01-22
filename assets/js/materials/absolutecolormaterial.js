@@ -9,7 +9,7 @@ import {
 const VERTEX = shaderParse(require('../shaders/absolute_color/vertex.glsl'));
 const FRAGMENT = shaderParse(require('../shaders/absolute_color/fragment.glsl'));
 
-let CelShadingMaterial = function (scene, color, name) {
+let Material = function (scene, color, name) {
 
   let uniforms = THREE.UniformsUtils.merge([{
 
@@ -35,11 +35,10 @@ let CelShadingMaterial = function (scene, color, name) {
     transparent: false,
 
   });
-  //material.depthWrite = false;
-  //material.side = THREE.DoubleSide;
+
   MaterialManager.set('absolute_' + name, material);
 
   return material;
 };
 
-export default CelShadingMaterial;
+export default Material;

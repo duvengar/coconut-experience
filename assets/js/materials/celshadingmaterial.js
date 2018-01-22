@@ -7,20 +7,28 @@ import {
 const VERTEX = shaderParse(require('../shaders/celshading_basic/vertex.glsl'));
 const FRAGMENT = shaderParse(require('../shaders/celshading_basic/fragment.glsl'));
 
-let Material = function (scene, color, name) {
+let Material = function (scene, diffuse, emissive, name) {
 
   let uniforms = THREE.UniformsUtils.merge([{
       lightPos: {
         type: 'v3',
         value: scene.lights[0].position,
       },
+      luminosity: {
+        type: 'f',
+        value: 0.25,
+      },
       lightColor: {
         type: 'c',
-        value: new THREE.Color(0xf937be),
+        value: new THREE.Color(scene.options.colors.cyan),
       },
       diffuse: {
         type: 'c',
-        value: color,
+        value: diffuse,
+      },
+      emissive: {
+        type: 'c',
+        value: emissive,
       },
       iGlobalTime: {
         type: 'f',
@@ -42,8 +50,6 @@ let Material = function (scene, color, name) {
   });
 
   MaterialManager.set('celshading_' + name, material);
-  console.log('celshader_' + name);
-  console.log(color);
 
   return material;
 };

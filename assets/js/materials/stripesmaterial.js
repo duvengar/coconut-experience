@@ -3,27 +3,39 @@ import shaderParse from '../shaders/shaderparse.js';
 import { MaterialManager } from './manager';
 //import Clock from '../scene/clock';
 
-const VERTEX = shaderParse(require('../shaders/celshading_stripes2/vertex.glsl'));
-const FRAGMENT = shaderParse(require('../shaders/celshading_stripes2/fragment.glsl'));
+const VERTEX = shaderParse(require('../shaders/celshading_stripes/vertex.glsl'));
+const FRAGMENT = shaderParse(require('../shaders/celshading_stripes/fragment.glsl'));
 
-let StripeMaterial = function (scene) {
+let Material = function (scene) {
 
   let uniforms = THREE.UniformsUtils.merge([{
       lightPos: {
         type: 'v3',
         value: scene.lights[0].position,
       },
+      luminosity: {
+        type: 'f',
+        value: 0.0,
+      },
       lightColor: {
         type: 'c',
-        value: new THREE.Color(0xf937be),
+        value: new THREE.Color(scene.options.colors.cyan),
       },
       diffuse: {
         type: 'c',
-        value: new THREE.Color(scene.options.colors.blue),
+        value: new THREE.Color(scene.options.colors.bluishgrey),
+      },
+      emissive: {
+        type: 'c',
+        value: new THREE.Color(scene.options.colors.purple),
       },
       diffuse2: {
         type: 'c',
-        value: new THREE.Color(0xcdcaec),
+        value: new THREE.Color(scene.options.colors.white),
+      },
+      emissive2: {
+        type: 'c',
+        value: new THREE.Color(scene.options.colors.cyan),
       },
       iGlobalTime: {
         type: 'f',
@@ -48,4 +60,4 @@ let StripeMaterial = function (scene) {
   return material;
 };
 
-export default StripeMaterial;
+export default Material;

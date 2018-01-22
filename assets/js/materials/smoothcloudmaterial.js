@@ -6,12 +6,12 @@ import { MaterialManager } from './manager';
 const VERTEX = shaderParse(require('../shaders/smoothcloud/vertex.glsl'));
 const FRAGMENT = shaderParse(require('../shaders/smoothcloud/fragment.glsl'));
 
-let SmoothCloudMaterial = function () {
+let Material = function (colors) {
 
   let uniforms = THREE.UniformsUtils.merge([{
       opacity: { type: 'f', value: 0.75 },
-      diffuse: { type: 'c', value: new THREE.Color(0xcdcaec) },
-      diffshadow: { type: 'c', value: new THREE.Color(0x106cc1) },
+      diffuse: { type: 'c', value: new THREE.Color(colors.bluishgrey) },
+      lightColor: { type: 'c', value: new THREE.Color(colors.cyan) },
       iGlobalTime: { type: 'f', value: 0.0 },
     },
         THREE.UniformsLib.fog,
@@ -27,8 +27,9 @@ let SmoothCloudMaterial = function () {
     transparent: true,
 
   });
+  material.side = THREE.BackSide;
   MaterialManager.set('smooth_cloud', material);
   return material;
 };
 
-export default SmoothCloudMaterial;
+export default Material;

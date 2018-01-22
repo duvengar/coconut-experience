@@ -23,8 +23,8 @@ class Sky {
         density: 100,
         friction: 0.2,
         restitution: 0.2,
-        belongsTo: 3,
-        collidesWith: 0x111111,
+        belongsTo: 1,
+        collidesWith: 0x454545,
       },
     };
 
@@ -35,7 +35,7 @@ class Sky {
       heightSegments: this.options.heightSegments,
     });
     let material = MaterialManager.get('smooth_cloud');
-    material.side = THREE.BackSide;
+
     let mesh = new THREE.Mesh(sphere, material);
     mesh.name = this.options.name;
     mesh.position.set(
@@ -43,8 +43,19 @@ class Sky {
       this.options.position.y,
       this.options.position.z,
     );
-    mesh.rotateY(-Math.PI);
-    scene.add(mesh);
+
+    let mesh2 = mesh.clone();
+
+    mesh2.scale.set(
+      19,
+      19,
+      19,
+    );
+
+    mesh2.material = MaterialManager.get('starfield');
+    mesh2.name = 'Starfield';
+    scene.add(mesh, this.options.physics);
+    scene.add(mesh2, this.options.physics);
 
     return mesh;
 

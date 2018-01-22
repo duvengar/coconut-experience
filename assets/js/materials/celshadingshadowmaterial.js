@@ -7,7 +7,7 @@ import {
 const VERTEX = shaderParse(require('../shaders/celshading_shadow/vertex.glsl'));
 const FRAGMENT = shaderParse(require('../shaders/celshading_shadow/fragment.glsl'));
 
-let CelShadingMaterial = function (scene, color, name) {
+let Material = function (scene, color, name) {
 
   let uniforms = THREE.UniformsUtils.merge([{
       lightPos: {
@@ -43,9 +43,8 @@ let CelShadingMaterial = function (scene, color, name) {
   });
 
   MaterialManager.set('celshader_' + name, material);
-  //console.log('celshader_' + name + '_material');
 
   return material;
 };
 
-export default CelShadingMaterial;
+export default Material;

@@ -1,114 +1,177 @@
-@import 'vendor/reset';
+@charset 'utf-8';
 
-* {
-    margin: 0;
-    padding: 0;
-    border: 0;
+
+// Reset all the things
+@import 'vendors/reset';
+
+@import 'helpers/functions';
+@import 'helpers/variables';
+
+// Vendors
+@import 'vendors/sassline';
+@import 'vendors/breakpoint-sass';
+
+
+@import 'layout/grid';
+
+@import 'typography/latin';
+
+@include breakpoint-set('to ems', true);
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  @include rootsize;
+
+  text-size-adjust: 100%;
+}
+
+
+// Prevents SVG sub-elements from being selected
+svg {
+  pointer-events: none;
+}
+
+// Prevents tap outline on mobile
+:focus {
+  outline: none;
+}
+
+::-moz-focus-inner {
+  border: 0;
 }
 
 body {
-    background-color: #3D4143;
+    background-color: #390F77;
+    color: #fff;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
-    color: #EEEEEE;
-    font-family: Arial;
-    font-size: 11px;
 }
 
-canvas {
+#canvas {
+    width: 100vw;
+    height: 100vh;
+    filter: blur(18px);
+    transition: filter get-transition('long') ease-out;
+    transition-delay: get-transition('slow');
+
+    &.is-active {
+        filter: blur(0);
+    }
+}
+
+.header {
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
     right: 0;
-    pointer-events: auto;
-    width: 100%;
-    height: 100%;
+    z-index: 20;
 }
 
-input {
-    margin: 0;
-    padding: 8px;
-    background: linear-gradient(#72797D , #3D4143);
-    color: #EEEEEE;
-    font-family: Arial;
-}
-
-input[type='button'] {
-    border: 2px solid #72797D;
-    cursor: pointer;
-}
-
-input[type='button']:hover {
-    border: 2px solid #72797D;
-    cursor: pointer;
-    background: #11BBFF;
-    color: #000000;
-}
-
-#interface {
+.logo {
     position: absolute;
-    left: 10px;
-    top: 10px;
-    width: 100%;
-    height: 20px;
+    left: 0;
+    top: 0;
+    margin: 1rem;
+    width: 30px;
+    height: 30px;
 }
 
-#info {
+.logotype {
+    height: 30px;
+    width: 118px;
+    margin: 1rem auto;
+}
+
+.noise {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/dist/images/noise.png') repeat;
     pointer-events: none;
+    opacity: 0.1;
+}
+ .intro {
     position: absolute;
-    left: 10px;
-    top: 60px;
-    width: 400px;
-    height: 400px;
-    font-family: monospace;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    transition: opacity get-transition('slow') get-easing('natural'),
+        visibility get-transition('slow');
+
+    &.is-inactive {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+ }
+
+.headphones {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    bottom: 6rem;
+    text-align: center;
 }
 
-#link {
+.headphones-icon {
+    margin: 0 auto;
+    width: 3rem;
+    height: 3rem;
+}
+
+.footer {
     position: absolute;
+    z-index: 10;
     left: 0;
     bottom: 0;
     width: 100%;
+}
+
+.volume-icon {
+    width: 30px;
     height: 30px;
-    font-size: 14px;
-    word-spacing: 10px;
-    text-align: right;
-    margin-left: -30px;
-    font-weight: bold;
+    margin: 1rem;
 }
 
-.link {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 30px;
-    font-size: 14px;
-    word-spacing: 10px;
-    text-align: right;
-    margin-left: -30px;
-    font-weight: bold;
+.volume-icon--on {
+    display: none;
 }
 
-a {
-    margin: 10px;
+.volume.is-active {
+    .volume-icon--on {
+        display: block;
+    }
+
+    .volume-icon--off {
+        display: none;
+    }
 }
 
-a:link {
-    color: #EEEEEE;
-    text-decoration: none;
-}
+ @include breakpoint(get-layout('box-bp-2')) {
+    .logo {
+        width: 60px;
+        height: 60px
+    }
 
-a:visited {
-    color: #EEEEEE;
-    text-decoration: none;
-}
+    .logotype {
+        width: 236px;
+        height: 60px;
+    }
+ }
 
-a:hover {
-    color: #11BBFF;
-    text-decoration: none;
-}
 
-a:active {
-    color: #11BBFF;
-    text-decoration: none;
-}
+ @media (min-width: 40em) and (orientation: landscape) {
+    .headphones {
+        bottom: 1rem;
+    }
+ }

@@ -20,10 +20,6 @@ class Palmtree {
       cocoMax: 15,
     };
 
-    // let rand = Math.random();
-    // let randHeight = THREE.Math.mapLinear(rand, 0, 1, 1.69 1.7);
-    // let randRadius = THREE.Math.mapLinear(rand, 0, 1, 1.59, 1.6);
-
     this.options = defaultsDeep(options, this.options);
 
     let trunk = new Trunk(scene, {
@@ -33,14 +29,6 @@ class Palmtree {
         y: this.options.position.y,
         z: this.options.position.z,
       },
-      // segments: {
-      //   radius: {
-      //     max: randRadius,
-      //   },
-      //   height: {
-      //     max: randHeight,
-      //   },
-      // },
     });
 
     let lastSegment = trunk.segments[trunk.segments.length - 1];
@@ -97,7 +85,6 @@ class Palmtree {
       });
 
       let cocoBody = coco.body;
-      //
       let link = scene.world.add({
         type: 'jointHinge',
         name: this.options.name + this.options.index + '_CocoLink_' + (i - 1),
@@ -114,7 +101,6 @@ class Palmtree {
 
       scene.Joints.push(link);
       scene.cocos.push(coco);
-
 
     }
 

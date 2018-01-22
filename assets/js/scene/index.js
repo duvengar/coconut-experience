@@ -1,9 +1,7 @@
 import * as THREE from 'three';
-import Renderer from './renderer';
 
-//import Postprod from './postprocess';
+import Renderer from './renderer';
 import Camera from './camera';
-import cubeCamera from './cubecamera';
 import Composer from './effectcomposer';
 import Frustrum from './frustrum';
 import CameraFrustrum from './camerafrustrum';
@@ -12,97 +10,81 @@ import Clock from './clock';
 import World from './world';
 import Gestures from './gestures';
 import Controls from './controls';
-import {
-  MaterialManager
-} from '../materials/manager';
-
-const $ = require('jquery');
-
+import { MaterialManager } from '../materials/manager';
+import { SoundManager } from '../sound/manager';
 
 class Scene {
   constructor(options) {
+    this.ismobile = true;
     this.options = options;
-    this.Mirrors = [];
+    this.lostcocos = 0;
     this.objects = [];
     this.cocos = [];
     this.Joints = [];
+    this.cracks = [];
+    this.notes = [];
+    this.playnotes = [];
     this.lastJointPos = [];
     this.jointStrenth = [];
 
     this.options.dimensions = {
-      width: $(this.options.renderer.canvas).width(),
-      height: $(this.options.renderer.canvas).height(),
+      width: this.options.renderer.canvas.offsetWidth,
+      height: this.options.renderer.canvas.offsetHeight,
     };
     this.options.camera.distance = 10;
     this.options.camera.position = {
-      x: 66,
-      y: 24,
-      z: 20,
+      x: 95,
+      y: 20,
+      z: 10,
     };
-    this.options.camera.lookAt = {
-      x: 0,
-      y: 15,
-      z: 0,
-    };
+
+    this.options.camera.lookAt = new THREE.Vector3(0.0, 15.0, 0.0);
     this.scene = new THREE.Scene();
     this.count = true;
     this.renderer = new Renderer(options);
     this.textureRenderer = new Renderer(options);
     this.camera = new Camera(options);
-    this.cubecamera = new cubeCamera();
-    // this.occlusionRenderTarget = new THREE.WebGLRenderTarget(options.dimensions.width,
-    //   options.dimensions.height);
-    //  console.log('RENDERER ' + this.renderer);
-    //  this.blendingRenderTarget = new THREE.WebGLRenderTarget(options.dimensions.width,
-    //    options.dimensions.height);
-    console.log('RENDERER ' + this.renderer);
-    this.composer = new Composer(this.scene, this.camera, this.renderer, this.options.dimensions.width, this.options.dimensions.height);
+    this.composer = new Composer(this.scene, this.camera, this.renderer,
+    this.options.dimensions.width, this.options.dimensions.height);
     this.lightfrustrum = new CameraFrustrum(options);
     this.lights = new Lights(options, this.camera, this.lightfrustrum);
     this.world = new World();
     this.clock = new Clock();
-    // debugg
+
+    // Debugg Lights
     //this.frustrum = new Frustrum(this.lightfrustrum);
     return this;
   }
 
   init() {
+    this.scene.fog = new THREE.FogExp2(
+      new THREE.Color(this.options.colors.fog),
+      this.options.scene.fog.factor
+    );
 
-
-    // this.scene.fog = new THREE.FogExp2(
-    //   new THREE.Color(this.options.colors.fog),
-    //   this.options.scene.fog.factor
-    // );
-
-    this.scene.fog = new THREE.Fog(new THREE.Color(this.options.colors.fog), 30, 120);
+    //console.log('W: ' + this.options.dimensions.width + ' H: ' + this.options.dimensions.height);
+    if (this.options.dimensions.width >= 1080) {
+      this.ismobile = false;
+    }
 
     // Lights
-    this.lights.forEach((function(light) {
-      this.scene.add(light);
-    }).bind(this));
-    //this.addRenderTargetImage();
-    // Frustrum
+    this.lights.forEach(light => this.scene.add(light));
+
+    // Debugg Lights
     //this.scene.add(this.frustrum);
 
-
     // Event Listeners
-    let updateSize = function() {
-      this.updateSize();
-    }.bind(this);
+    let updateSize = () => this.updateSize();
     window.addEventListener('resize', updateSize, false);
     this.gestures = new Gestures(this);
     this.controls = new Controls(this.options, this.camera);
-    //this.occlusionRenderTarget = new THREE.WebGLRenderTarget(this.options.dimensions.width * 0.5,
-    //  this.options.dimensions.height * 0.5);
-    //  this.composer = new Composer(this.renderer, this.occlusionRenderTarget);
+    this.controls.enabled = false;
   }
-
-
 
   updateSize() {
     this.options.dimensions = {
-      width: $(this.options.renderer.canvas).width(),
-      height: $(this.options.renderer.canvas).height(),
+      width: this.options.renderer.canvas.offsetWidth,
+      height: this.options.renderer.canvas.offsetHeight,
     };
 
     this.camera.aspect =
@@ -121,12 +103,44 @@ class Scene {
     if (this.world.numJoints != null) {
       for (let i = 0; i < this.Joints.length; i++) {
         let pos = new THREE.Vector3(this.Joints[i].body1.position.x,
-          this.Joints[i].body1.position.y,
-          this.Joints[i].body1.position.z);
+        this.Joints[i].body1.position.y,
+        this.Joints[i].body1.position.z);
+        this.cracks.push(1);
         this.lastJointPos.push(pos);
         this.jointStrenth.push(1);
       }
+
       this.count = false;
+    }
+  }
+
+  initNotes() {
+
+    for (let i = 0; i < this.notes.length; i++) {
+      this.playnotes[i] = false;
+    }
+  }
+
+  updateNotes() {
+
+    const getRandomIntInclusive = (min, max) => {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+
+    for (let i = 0; i < this.notes.length; i++) {
+
+      if (this.notes[i].mesh.material == MaterialManager.get('toon_cyan')) {
+
+        if (this.playnotes[i] === false) {
+          SoundManager.play('contact_' + getRandomIntInclusive(0, 4));
+          this.playnotes[i] = true;
+        }
+      } else {
+        this.playnotes[i] = false;
+      }
     }
   }
 
@@ -134,44 +148,70 @@ class Scene {
 
     if (this.world.numJoints != null) {
       for (let i = 0; i < this.Joints.length; i++) {
-        let pos = new THREE.Vector3(this.Joints[i].body1.position.x,
+        let pos = new THREE.Vector3(
+          this.Joints[i].body1.position.x,
           this.Joints[i].body1.position.y,
-          this.Joints[i].body1.position.z);
+          this.Joints[i].body1.position.z
+        );
         let pos2 = this.lastJointPos[i];
         let dist = pos.distanceTo(pos2);
-        if (dist > 0.15) {
 
+        if (dist > 0.15) {
           if (this.jointStrenth[i] > 0) {
             this.jointStrenth[i] -= 0.5;
-
           }
-
         } else if (dist <= 0.03 && this.jointStrenth[i] <= 0) {
           this.world.removeJoint(this.Joints[i]);
+          if (this.jointStrenth[i] == 0) {
+            this.lostcocos++;
+            this.jointStrenth[i] = -1;
+          }
         }
+
+        if (this.lostcocos > 0 && this.jointStrenth[i] == -1) {
+          let c = this.Joints[i].body1.numContacts;
+
+          if (c == 1 && this.cracks[i] > 0) {
+            SoundManager.play('contact');
+            this.cracks[i]--;
+          }
+        }
+
         this.lastJointPos[i] = pos;
-      }
-    }
-    for (let i = 0; i < this.cocos.length; i++) {
-      let cocoPos = this.cocos[i].body.position;
-      if (cocoPos.y < -50 && cocoPos.y > -51) {
-        let palmIndex = this.cocos[i].mesh.name.split('_')[1];
       }
     }
   }
 
-  updatePositions() {
+  preloopWorld(num) {
+    for (var i = 0; i < num; i++) {
+      this.world.step();
+    }
+  }
 
+  updateCamera() {
+    if (this.camera.position.x > 75) {
+      this.camera.position.x -= 0.25;
+    }
+
+    if (this.camera.position.z > 0) {
+      this.camera.position.z -= 0.125;
+    }
+  }
+
+  updatePositions() {
     this.world.step();
-    this.objects.forEach(function(object) {
+    this.updateCamera();
+    this.objects.forEach(function (object) {
 
       if (object.hasOwnProperty('body') === true) {
         object.mesh.position.copy(object.body.getPosition());
         object.mesh.quaternion.copy(object.body.getQuaternion());
       }
-      if (object.mesh.name === 'Wolf') {
-          object.mesh.rotation.set(0, this.clock.getElapsedTime() * 0.1, 0);
+
+      if (object.mesh.name === 'Wolf' || object.mesh.name === 'Ghost') {
+        object.mesh.rotation.set(0, this.clock.getElapsedTime() * 0.1, 0);
       }
+
     }.bind(this));
   }
 
@@ -181,33 +221,14 @@ class Scene {
 
   updateShaders() {
 
-    if (MaterialManager.get('celshading_stripes_material') != null) {
-      let material = MaterialManager.get('celshading_stripes_material');
-      material.uniforms.iGlobalTime.value = this.clock.getElapsedTime();
-    }
-
-    if (MaterialManager.get('displacement') != null) {
-      let material = MaterialManager.get('displacement');
-      material.uniforms.iGlobalTime.value = this.clock.getElapsedTime();
-    }
-
     if (MaterialManager.get('smooth_cloud') != null) {
       let material = MaterialManager.get('smooth_cloud');
       material.uniforms.iGlobalTime.value = this.clock.getElapsedTime();
     }
-
-    if (MaterialManager.get('additive_shader') != null) {
-      let material = MaterialManager.get('additive_shader');
-      //console.log('hellllllo');
-
-      //console.log(this.composer.occlusionComposer);
-      material.uniforms.tAdd.value = this.composer.occlusionComposer.renderTarget2.texture;
-    }
   }
 
   updateMaterials() {
-
-    this.objects.forEach(function(object) {
+    this.objects.forEach(function (object) {
       if (object.hasOwnProperty('body') === true) {
 
         const updatables = [
@@ -215,11 +236,10 @@ class Scene {
           'Crown',
           'Coco',
           'Tile',
-          'Land',
-          'Blob',
-          'Base',
           'Wolf',
           'Moon',
+          'Sky',
+          'Starfield',
         ];
 
         const parts = object.mesh.name.split('_');
@@ -231,13 +251,12 @@ class Scene {
         if (object.body.sleeping) {
           const sleepingMaterials = {
             Tile: 'toon_darkpurple',
-            Crown: 'celshading_blue',
+            Crown: 'celshading_purple',
             Coco: 'celshading_lightblue',
-            TrunkSegment: 'toon_grey',
-            Blob: 'displacement',
-            Base: 'toon_darkpurple',
-            sky: 'smooth_cloud',
-            Wolf: 'phong',
+            TrunkSegment: 'celshading_stripes_material',
+            Sky: 'smooth_cloud',
+            Starfield: 'starfield',
+            Wolf: 'celshading_purple',
             Moon: 'moon',
           };
 
@@ -245,16 +264,15 @@ class Scene {
             MaterialManager.get(sleepingMaterials[name]) :
             MaterialManager.get('toon_darkpurple');
         } else {
+
           const materials = {
             TrunkSegment: 'celshading_stripes_material',
-            Crown: 'celshading_blue',
+            Crown: 'celshading_purple',
             Coco: 'celshading_lightblue',
             Tile: 'toon_cyan',
-            Base: 'toon_cyan',
-            Montain: 'displacement_box',
-            Blob: 'displacement',
-            sky: 'smooth_cloud',
-            Wolf: 'phong',
+            Sky: 'smooth_cloud',
+            Starfield: 'starfield',
+            Wolf: 'celshading_pink',
             Moon: 'moon',
           };
 
@@ -267,17 +285,34 @@ class Scene {
   }
 
   oclMaterials() {
-
     this.objects.forEach(function (object) {
       if (object.hasOwnProperty('body') === true) {
 
         const updatables = [
           'Tile',
           'Moon',
-      
+          'Wolf',
+          'TrunkSegment',
+          'Coco',
+          'Crown',
+          'Sky',
+          'Starfield',
         ];
 
         const parts = object.mesh.name.split('_');
+
+        let objectId = parts[2];
+        let match = false;
+        if (parts[2] == 'Coco') {
+          let id = parts[1];
+          if (id == this.gestures.objectDragged
+              && this.gestures.dragStatus === 'DRAG_STATUS_DRAGGING') {
+            match = true;
+          } else {
+            match = false;
+          }
+        };
+
         const matches = parts.filter(part => updatables.indexOf(part) > -1 ? true : false);
         const name = parts.length > 0 && matches.length > 0 ?
           matches[0] :
@@ -286,7 +321,6 @@ class Scene {
         if (object.body.sleeping) {
           const sleepingMaterials = {
             Tile: 'absolute_black',
-
             Moon: 'absolute_lightgrey',
           };
 
@@ -296,8 +330,11 @@ class Scene {
         } else {
           const materials = {
             Tile: 'absolute_white',
-
-            Moon: 'absolute_lightgrey',
+            Moon: 'moon_cel',
+            Coco: match === true ?  'absolute_mediumgrey' : 'blank_material',
+            Sky: 'blank_material',
+            Stafield: 'blank_material',
+            Wolf: 'blank_material',
           };
 
           object.mesh.material = materials.hasOwnProperty(name) ?
@@ -309,31 +346,16 @@ class Scene {
     }.bind(this));
   }
 
-
   renderEffect() {
-
     this.renderer.setClearColor(0x000000);
     this.composer.occlusionComposer.render();
-
   }
 
   render() {
 
-    if (this.Mirrors.length > 0) {
-      for (let i = 0; i < this.Mirrors.length; i++) {
-        this.Mirrors[i].visible = false;
-      }
-      if (this.cubecamera !== null) {
-        this.cubecamera.updateCubeMap(this.renderer, this.scene);
-      }
-      for (let i = 0; i < this.Mirrors.length; i++) {
-        this.Mirrors[i].visible = true;
-      }
-    }
-    this.renderer.setClearColor(0x330c91);
+    this.renderer.setClearColor(this.options.colors.background);
     this.composer.blendingComposer.render();
   }
-
 
   animate() {
 
@@ -342,6 +364,7 @@ class Scene {
     this.updateShaders();
 
     if (this.count === true) {
+      this.initNotes();
       this.initCocos();
     } else {
       this.updateCocos();
@@ -350,10 +373,11 @@ class Scene {
     this.oclMaterials();
     this.renderEffect();
     this.updateMaterials();
+    this.updateNotes();
+    this.camera.lookAt(this.options.camera.lookAt);
     this.render();
 
-
-    let animate = function() {
+    let animate = function () {
       this.animate();
     }.bind(this);
     requestAnimationFrame(animate);
@@ -398,7 +422,6 @@ class Scene {
     this.gestures.updateMeshes(this.objects);
     return object;
   }
-
 }
 
 export default Scene;

@@ -3,10 +3,7 @@ import * as THREE from 'three';
 class Frustrum {
   constructor(camera) {
 
-  this.helper = new THREE.CameraHelper( camera );
-  //scene.add( helper );
-
-
+    this.helper = new THREE.CameraHelper(camera);
     return this.helper;
   }
 }
